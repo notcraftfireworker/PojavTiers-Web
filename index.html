@@ -2,59 +2,73 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>PojavTiers Leaderboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PojavTiers Live Leaderboard</title>
     <style>
-        body { font-family: sans-serif; background: #121212; color: white; text-align: center; }
-        table { width: 80%; margin: 20px auto; border-collapse: collapse; background: #1e1e1e; }
-        th, td { padding: 12px; border-bottom: 1px solid #333; }
-        th { background: #333; color: #00ffcc; }
-        .tier-high { color: #ffcc00; font-weight: bold; } /* Example: Gold Tier */
-        .tier-med { color: #c0c0c0; } /* Example: Silver Tier */
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #0f0f0f; color: white; text-align: center; margin: 0; padding: 20px; }
+        h1 { color: #00ffcc; text-transform: uppercase; letter-spacing: 2px; }
+        table { width: 95%; max-width: 900px; margin: 20px auto; border-collapse: collapse; background: #1a1a1a; border-radius: 8px; overflow: hidden; box-shadow: 0 0 20px rgba(0,0,0,0.5); }
+        th, td { padding: 15px; border-bottom: 1px solid #333; text-align: left; }
+        th { background: #333; color: #00ffcc; font-size: 14px; }
+        tr:hover { background: #252525; }
+        .rank-tag { background: #00ffcc; color: black; padding: 4px 8px; border-radius: 4px; font-weight: bold; font-size: 12px; }
+        .gamemode { color: #aaa; font-style: italic; }
+        #loading { font-size: 18px; color: #888; }
     </style>
 </head>
 <body>
 
-    <h1>🏆 PojavTiers Live Results</h1>
+    <h1>🏆 PojavTiers Rankings</h1>
+    <p>Live API Data from Vercel</p>
     
-    <table id="tierTable">
+    <div id="loading">Fetching latest tests...</div>
+
+    <table id="tierTable" style="display:none;">
         <thead>
             <tr>
-                <th>Username</th>
-                <th>Tier</th>
-                <th>Score/Points</th>
+                <th>PLAYER</th>
+                <th>RANK EARNED</th>
+                <th>GAMEMODE</th>
+                <th>REGION</th>
             </tr>
         </thead>
-        <tbody id="tableBody">
-            <!-- Data yahan automatic aayega -->
-        </tbody>
+        <tbody id="tableBody"></tbody>
     </table>
 
     <script>
         async function fetchTiers() {
             try {
-                const response = await fetch('https://tierlist-bot.vercel.app/api/pojavtiers');
+                // API URL with a random version to bypass cache
+                const response = await fetch('https://tierlist-bot.vercel.app/api/pojavtiers?v=' + Date.now());
                 const data = await response.json();
+                
                 const tableBody = document.getElementById('tableBody');
+                const table = document.getElementById('tierTable');
+                const loading = document.getElementById('loading');
 
-                tableBody.innerHTML = ''; // Purana data saaf karein
+                tableBody.innerHTML = ''; 
 
                 data.forEach(player => {
                     const row = `<tr>
-                        <td>${player.username || 'Unknown'}</td>
-                        <td class="tier-high">${player.tier || 'N/A'}</td>
-                        <td>${player.points || '0'}</td>
+                        <td><strong>${player.username}</strong></td>
+                        <td><span class="rank-tag">${player.rankEarned}</span></td>
+                        <td class="gamemode">${player.gamemode}</td>
+                        <td>${player.region}</td>
                     </tr>`;
                     tableBody.innerHTML += row;
                 });
+
+                loading.style.display = 'none';
+                table.style.display = 'table';
             } catch (error) {
-                console.error("API se data nahi mil raha:", error);
+                console.error("Data load nahi ho paya:", error);
+                document.getElementById('loading').innerText = "Error loading data. Check console.";
             }
         }
 
-        // Page load hote hi fetch karein
         fetchTiers();
-        // Har 1 minute mein auto-refresh karein
-        setInterval(fetchTiers, 60000);
+        // Har 30 seconds mein auto-update
+        setInterval(fetchTiers, 30000);
     </script>
 </body>
 </html>
