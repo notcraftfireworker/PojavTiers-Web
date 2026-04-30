@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>PojavTiers Leaderboard</title>
+    <style>
+        body { font-family: sans-serif; background: #121212; color: white; text-align: center; }
+        table { width: 80%; margin: 20px auto; border-collapse: collapse; background: #1e1e1e; }
+        th, td { padding: 12px; border-bottom: 1px solid #333; }
+        th { background: #333; color: #00ffcc; }
+        .tier-high { color: #ffcc00; font-weight: bold; } /* Example: Gold Tier */
+        .tier-med { color: #c0c0c0; } /* Example: Silver Tier */
+    </style>
+</head>
+<body>
+
+    <h1>🏆 PojavTiers Live Results</h1>
+    
+    <table id="tierTable">
+        <thead>
+            <tr>
+                <th>Username</th>
+                <th>Tier</th>
+                <th>Score/Points</th>
+            </tr>
+        </thead>
+        <tbody id="tableBody">
+            <!-- Data yahan automatic aayega -->
+        </tbody>
+    </table>
+
+    <script>
+        async function fetchTiers() {
+            try {
+                const response = await fetch('https://tierlist-bot.vercel.app/api/pojavtiers');
+                const data = await response.json();
+                const tableBody = document.getElementById('tableBody');
+
+                tableBody.innerHTML = ''; // Purana data saaf karein
+
+                data.forEach(player => {
+                    const row = `<tr>
+                        <td>${player.username || 'Unknown'}</td>
+                        <td class="tier-high">${player.tier || 'N/A'}</td>
+                        <td>${player.points || '0'}</td>
+                    </tr>`;
+                    tableBody.innerHTML += row;
+                });
+            } catch (error) {
+                console.error("API se data nahi mil raha:", error);
+            }
+        }
+
+        // Page load hote hi fetch karein
+        fetchTiers();
+        // Har 1 minute mein auto-refresh karein
+        setInterval(fetchTiers, 60000);
+    </script>
+</body>
+</html>
